@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useEffect, useReducer } from "react";
 
 import Header from "./Header";
@@ -104,20 +105,21 @@ export default function App() {
     dispatch,
   ] = useReducer(reducer, initialState);
 
-  // these useEffects will get all of the data which needed for displaying filters
-  useEffect(function () {
+  // these useEffects will get all of the data which needed for displaying filters queries
+  useEffect(() => {
     async function getAllCategories() {
       try {
-        const res = await fetch(
+        const res = await axios.get(
           "https://www.themealdb.com/api/json/v1/1/list.php?c=list"
         );
-        const data = await res.json();
-        // api data is an array of objects i just made it to be an array of strings
-        const fixedCategory = data.meals.slice(0, 6).map((c) => c.strCategory);
+        //  api data is an array of objects i just made it to be an array of strings
+        const fixedCategory = res.data.meals
+          .slice(0, 6)
+          .map((c) => c.strCategory);
 
         dispatch({ type: "getCategories", payload: fixedCategory });
       } catch (err) {
-        console.error(err.message);
+        console.log(err.message);
       }
     }
 
@@ -127,11 +129,10 @@ export default function App() {
   useEffect(function () {
     async function getAllIngredients() {
       try {
-        const res = await fetch(
+        const res = await axios.get(
           "https://www.themealdb.com/api/json/v1/1/list.php?i=list"
         );
-        const data = await res.json();
-        const FixedIng = data.meals
+        const FixedIng = res.data.meals
           .slice(4, 10)
           .map((ing) => ing.strIngredient);
 
@@ -147,15 +148,15 @@ export default function App() {
   useEffect(function () {
     async function getAllAreas() {
       try {
-        const res = await fetch(
+        const res = await axios.get(
           "https://www.themealdb.com/api/json/v1/1/list.php?a=list"
         );
-        const data = await res.json();
-        const fixedArea = data.meals.slice(0, 5).map((a) => a.strArea);
+
+        const fixedArea = res.data.meals.slice(0, 5).map((a) => a.strArea);
 
         dispatch({ type: "getAreas", payload: fixedArea });
       } catch (err) {
-        console.err(err.message);
+        console.error(err.message);
       }
     }
 
@@ -177,14 +178,13 @@ export default function App() {
           ? "a"
           : "";
 
-      const res = await fetch(
+      const res = await axios.get(
         `https://www.themealdb.com/api/json/v1/1/filter.php?${sectionToSearch}=${query}`
       );
-      const data = await res.json();
 
       // i wrote this variable so i get few data from api
       const slicedData =
-        data.meals.length > 6 ? data.meals.slice(0, 6) : data.meals;
+        res.data.meals.length > 6 ? res.data.meals.slice(0, 6) : res.data.meals;
 
       // in MenuItem component i needed these queries so i added them to every object in my sliced data
       const mainData = slicedData.map((d) => {

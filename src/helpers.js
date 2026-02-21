@@ -1,13 +1,14 @@
+import axios from "axios";
+
 export default async function getSearch(url) {
   // getting data from api
-  const res = await fetch(url);
+  const res = await axios.get(url);
 
-  const data = await res.json();
-  if (data.meals === null) throw new Error("Food not found!");
+  if (res.data.meals === null) throw new Error("Food not found!");
 
   // pushing ingredients to an array because the api's ingredients wasn't in array and had to many null and empty string in its ingredients so i made an array of ingredients by myself
   const ing = [];
-  for (const i of Object.entries(data.meals[0])) {
+  for (const i of Object.entries(res.data.meals[0])) {
     if (i[0].startsWith("strIngredient")) {
       ing.push(i[1]);
     }
@@ -16,7 +17,7 @@ export default async function getSearch(url) {
   const ingredients = ing.filter((ing) => ing);
 
   // making a new object for every searched meal
-  const mainData = data.meals[0];
+  const mainData = res.data.meals[0];
   const newSearch = {
     idMeal: mainData.idMeal,
     strArea: mainData.strArea,
